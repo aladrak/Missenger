@@ -14,3 +14,10 @@ val Pink40 = Color(0xFF7D5260)
 val MainDark = Color(0xFF3a3a3a)
 val SecondaryDark = Color(0xFFFAF4F4)
 val AccentDark = Color(0xFF262626)
+
+// LightTheme
+val MainLight = Color(0xFFFAF4F4)
+val SecondaryLight = Color(0xFF3a3a3a)
+val AccentLight = Color(0xFF262626)
+
+val AppColor = Color(0xFFFF9900)

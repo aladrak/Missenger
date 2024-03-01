@@ -36,7 +36,39 @@ class SocialRepository {
 //        ID = id
         loggedUser = UserData(id, "", "")
     }
+    suspend fun regUser (
+        username: String,
+        password: String,
+        lastname: String,
+        firstname: String,
+    ) : Pair<Int, Int> {
+        data class RegModel (
+            val username: String = "",
+            val password: String = "",
+            val last_name: String = "",
+            val first_name: String = "",
+        )
 
+        val gson = GsonBuilder().create()
+        val message = gson.toJson(RegModel(username, password, lastname, firstname))
+
+        val JSON = "application/json; charset=utf-8".toMediaType()
+        val request = Request.Builder()
+            .url(REGISTRATION)
+            .post(
+                message.toRequestBody(JSON)
+            )
+            .build()
+        return try {
+            val response = client.newCall(request).execute()
+            val item = JSONObject(response.body!!.string())
+            val result = item.getInt("id")
+            Pair(response.code, result)
+        } catch (ex: Exception) {
+            Log.e("OK_HTTP", ex.message ?: "")
+            Pair(0, 0)
+        }
+    }
     suspend fun getUserInfo (
         name: String
     ) : Pair<Int, UserInfo?> {
@@ -203,7 +235,7 @@ class SocialRepository {
         searchString: String
     ) : Pair<Int, List<UserInfo>?> {
         data class SearchModel (
-            val searchString: String,
+            val search_string: String,
         )
 
         val gson = GsonBuilder().create()

@@ -27,14 +27,15 @@ class ChatViewModel(
     fun sendMessage(friendId: Int, msg: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.sendMsg(friendId = friendId, message = msg)
-//            withContext(Dispatchers.Main) {
-//                State.emit(
-//                    ChatState(
-//                        list = result.second,
-//                        load = true
-//                    )
-//                )
-//            }
+            val resultMsg = repository.getMessages(friendId = friendId)
+            withContext(Dispatchers.Main) {
+                State.emit(
+                    ChatState(
+                        list = resultMsg.second,
+                        load = true
+                    )
+                )
+            }
         }
     }
 
