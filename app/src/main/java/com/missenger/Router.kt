@@ -83,7 +83,7 @@ fun Router (
                         }
                     }
                 )
-                Line(380.dp, MaterialTheme.colorScheme.tertiary)
+                Line(400.dp, MaterialTheme.colorScheme.onSecondary)
             }
         }
     ) { innerPadding ->
@@ -100,7 +100,9 @@ fun Router (
             ) {
                 composable(route = Router.Auth.name) {
                     val viewModel: AuthViewModel = viewModel()
-                    AuthScreen(viewModel.State)
+                    AuthScreen(
+                        viewModel.State
+                    )
                 }
                 composable(route = Router.Messenger.name) {
                     val viewModel: MessengerViewModel = viewModel()

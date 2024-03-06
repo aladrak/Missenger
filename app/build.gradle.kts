@@ -61,6 +61,7 @@ android {
 
 dependencies {
 
+    implementation("androidx.wear.compose:compose-material:1.3.0")
     val composeBom = platform("androidx.compose:compose-bom:2023.10.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)

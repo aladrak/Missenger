@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.missenger.R
 import com.missenger.data.MessageModel
+import com.missenger.ui.theme.AppColor
 import com.missenger.ui.theme.SmallText
 import kotlinx.coroutines.flow.StateFlow
 import java.time.format.DateTimeFormatter
@@ -142,8 +143,9 @@ fun SendField(
                 },
             ) {
                 Icon(
+                    tint = AppColor,
                     painter = painterResource(R.drawable.baseline_send_24),
-                    "Send btn",
+                    contentDescription = "Send btn",
                 )
             }
         },

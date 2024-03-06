@@ -37,12 +37,12 @@ import com.missenger.R
 import com.missenger.data.MessageModel
 import com.missenger.data.UserInfo
 import com.missenger.ui.theme.AppColor
+import com.missenger.ui.theme.Line
 import com.missenger.ui.theme.MediumText
 import com.missenger.ui.theme.SmallText
 import kotlinx.coroutines.flow.StateFlow
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessengerScreen(
     state: StateFlow<MessengerViewModel.MessengerState>,
@@ -138,10 +138,13 @@ fun ChatItem (
             )
             SmallText(text = item.datetime.format(DateTimeFormatter.ofPattern("d MMM, HH:mm")).toString())
         }
-        Row() {
+        Row(
+            horizontalArrangement = Arrangement.Start
+        ) {
             SmallText(text = item.from.username + ": ")
             SmallText(text = item.message)
         }
+        Line(370.dp, MaterialTheme.colorScheme.onSecondary)
     }
 }
 
@@ -195,7 +198,13 @@ fun CardHolder(
                     .fillMaxHeight()
             ) {
                 if (value.searchResult.isNullOrEmpty()) {
-                    MediumText("No results.")
+                    MediumText(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                            .align(alignment = Alignment.CenterHorizontally),
+                        text = "No results."
+                    )
                 } else {
                     value.searchResult.forEach {
                         UserInfoItem(it, onClick)

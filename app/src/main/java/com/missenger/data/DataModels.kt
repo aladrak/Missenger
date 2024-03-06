@@ -8,6 +8,12 @@ data class UserInfo (
     val firstname:  String = "",
     val lastname:   String = "",
 )
+data class RegUserModel (
+    val username:   String = "",
+    val password:   String = "",
+    val firstname:  String = "",
+    val lastname:   String = "",
+)
 
 data class MessageModel (
     val id:       Int = 0,
@@ -16,9 +22,4 @@ data class MessageModel (
     val from:     UserInfo = UserInfo(),
     val to:       UserInfo = UserInfo(),
     val datetime: LocalDateTime,
-)
-
-data class UserMessagesModel (
-    val user_id : Int = 0,
-    val friend_id: Int = 0,
 )

@@ -19,6 +19,7 @@ class ChatViewModel(
 
     data class ChatState(
         val list: List<MessageModel>? = null,
+        val code: Int = 0,
         val load: Boolean = true
     )
 
@@ -32,6 +33,7 @@ class ChatViewModel(
                 State.emit(
                     ChatState(
                         list = resultMsg.second,
+                        code = result,
                         load = true
                     )
                 )

@@ -4,11 +4,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.StateFlow
 
@@ -21,7 +29,7 @@ fun AuthScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(24.dp)
         ) {
             Text(
                 text = value.model?.id.toString()
@@ -42,4 +50,35 @@ fun AuthScreen(
                 .fillMaxSize()
         )
     }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AuthField(
+    fieldName: String,
+) {
+    val inputText = remember { mutableStateOf(TextFieldValue()) }
+    TextField(
+        label = { Text(fieldName) },
+        value = inputText.value,
+        onValueChange = {
+            inputText.value = it
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        singleLine = true,
+//        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+//        keyboardActions = KeyboardActions(
+//            onSearch = { onSearch(inputText.value.text) }
+//        ),
+        colors = TextFieldDefaults.textFieldColors(
+            cursorColor = MaterialTheme.colorScheme.secondary,
+            focusedTextColor = MaterialTheme.colorScheme.secondary,
+            unfocusedTextColor = MaterialTheme.colorScheme.secondary,
+            disabledTextColor = MaterialTheme.colorScheme.secondary,
+            focusedLabelColor = MaterialTheme.colorScheme.secondary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.secondary,
+            disabledLabelColor = MaterialTheme.colorScheme.secondary,
+        )
+    )
 }

@@ -24,7 +24,6 @@ fun MediumText (
         modifier = modifier,
         fontSize = 21.sp,
         textAlign = textAlign,
-        maxLines = 1,
     )
 }
 @Composable

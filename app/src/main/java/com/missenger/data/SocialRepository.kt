@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter
 
 class SocialRepository {
     private val client = OkHttpClient()
-
     private lateinit var prefs: Prefs
 
     data class UserData (
@@ -23,18 +22,14 @@ class SocialRepository {
         var password: String,
     )
 
-    var loggedUser : UserData = UserData(1, "", "")
-//    private var ID : Int = 0
+    var loggedUser : UserData = UserData(110, "ytu", "123456789")
 
     fun initPrefs(pref: SharedPreferences) {
         prefs = Prefs(pref)
-//        prefs.putIdToPrefs(1)
         val id = if (prefs.getLoggedId() == 0)  {1} else {
             prefs.getLoggedId()
         }
-//        prefs.putIdToPrefs(1)
-//        ID = id
-        loggedUser = UserData(id, "", "")
+//        loggedUser = UserData(id, "", "")
     }
     suspend fun regUser (
         username: String,
@@ -92,14 +87,16 @@ class SocialRepository {
     }
 
     suspend fun getLastMessages (
-        id: Int = loggedUser.id,
+        username: String = loggedUser.username,
+        password: String = loggedUser.password,
     ) : Pair<Int, List<MessageModel>?> {
 
-        data class IdModel (
-            val user_id: Int,
+        data class LastMessagesModel (
+            val username: String,
+            val password: String,
         )
         val gson = GsonBuilder().create()
-        val message = gson.toJson(IdModel(user_id = id))
+        val message = gson.toJson(LastMessagesModel(username, password))
 
         val JSON = "application/json; charset=utf-8".toMediaType()
         val request = Request.Builder()
@@ -148,11 +145,17 @@ class SocialRepository {
     }
 
     suspend fun getMessages (
-        userId: Int = loggedUser.id,
+        username: String = loggedUser.username,
+        password: String = loggedUser.password,
         friendId: Int,
     ) : Pair<Int, List<MessageModel>?> {
+        data class getMessagesModel(
+            val username: String,
+            val password: String,
+            val friend_id: Int,
+        )
         val gson = GsonBuilder().create()
-        val message = gson.toJson(UserMessagesModel(userId, friendId))
+        val message = gson.toJson(getMessagesModel(username, password, friendId))
 
         val JSON = "application/json; charset=utf-8".toMediaType()
         val request = Request.Builder()
@@ -202,18 +205,20 @@ class SocialRepository {
     }
 
     suspend fun sendMsg (
-        userId: Int = loggedUser.id,
+        username: String = loggedUser.username,
+        password: String = loggedUser.password,
         friendId: Int,
         message: String,
     ) : Int {
         data class SendModel (
-            val from: Int,
+            val username: String,
+            val password: String,
             val to: Int,
             val message: String,
         )
 
         val gson = GsonBuilder().create()
-        val sender = gson.toJson(SendModel(from = userId, to = friendId, message = message))
+        val sender = gson.toJson(SendModel(username, password, to = friendId, message))
 
         val JSON = "application/json; charset=utf-8".toMediaType()
         val request = Request.Builder()
@@ -278,8 +283,8 @@ class SocialRepository {
     }
 
     companion object {
-        private const val LOGIN = "http://109.196.164.62:5000/login/" // POST
-        private const val REGISTRATION = "http://109.196.164.62:5000/register/" // POST
+        private const val LOGIN = "http://109.196.164.62:5000/login" // POST
+        private const val REGISTRATION = "http://109.196.164.62:5000/register" // POST
 
         private const val SEARCH_USER = "http://109.196.164.62:5000/search" // POST
         private const val GET_USER_INFO = "http://109.196.164.62:5000/user/" // GET
