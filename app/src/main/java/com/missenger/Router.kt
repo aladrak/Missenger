@@ -88,7 +88,7 @@ fun Router (
         }
     ) { innerPadding ->
         Surface(
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onSecondary,
             contentColor = MaterialTheme.colorScheme.secondary
         ) {
             NavHost(
@@ -101,7 +101,9 @@ fun Router (
                 composable(route = Router.Auth.name) {
                     val viewModel: AuthViewModel = viewModel()
                     AuthScreen(
-                        viewModel.State
+                        viewModel.State,
+                        {},
+                        {viewModel.registration(it)},
                     )
                 }
                 composable(route = Router.Messenger.name) {

@@ -1,15 +1,21 @@
 package com.missenger.messenger
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -28,6 +34,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -37,7 +45,6 @@ import com.missenger.R
 import com.missenger.data.MessageModel
 import com.missenger.data.UserInfo
 import com.missenger.ui.theme.AppColor
-import com.missenger.ui.theme.Line
 import com.missenger.ui.theme.MediumText
 import com.missenger.ui.theme.SmallText
 import kotlinx.coroutines.flow.StateFlow
@@ -49,7 +56,7 @@ fun MessengerScreen(
     onClickAction: (Int) -> Unit,
     onSearch: (String) -> Unit,
 ) {
-    val openDialog = remember { mutableStateOf(true)}
+    val openDialog = remember {mutableStateOf(true)}
     val value = state.collectAsState().value
     if (openDialog.value) {
         if (value.model == null) {
@@ -59,9 +66,7 @@ fun MessengerScreen(
                 val (list, button) = createRefs()
                 Column(
                     modifier = Modifier
-                        .constrainAs(list) {
-                            top.linkTo(parent.top)
-                        }
+                        .constrainAs(list) {top.linkTo(parent.top)}
                         .fillMaxWidth()
                         .padding(5.dp, 0.dp, 5.dp, 0.dp)
                 ) {
@@ -112,39 +117,55 @@ fun ChatItem (
     item: MessageModel,
     onClick: (Int) -> Unit
 ) {
+    val friendId = getFriendId(item)
+    val friendName = getFriendName(item)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(0.dp, 0.dp, 0.dp, 0.dp)
+            .padding(0.dp, 2.dp, 0.dp, 2.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                RoundedCornerShape(8.dp)
+            )
+            .clip(RoundedCornerShape(8.dp))
             .clickable {
-                onClick(
-                    if (item.from.id == item.logged) {
-                        item.to.id
-                    } else {
-                        item.from.id
-                    }
-                )
+                onClick(friendId)
             }
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxWidth()
+                .padding(8.dp, 5.dp, 8.dp, 5.dp)
         ) {
-            MediumText(
-                text = if (item.from.id == item.logged) {item.to.username} else {item.from.username},
+            ColorWithText(friendId, friendName[0].toUpperCase().toString())
+            Column(
                 modifier = Modifier
-            )
-            SmallText(text = item.datetime.format(DateTimeFormatter.ofPattern("d MMM, HH:mm")).toString())
+                    .padding(8.dp, 0.dp, 4.dp, 0.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    MediumText(
+                        text = friendName.plus("#".plus(friendId)),
+                        modifier = Modifier
+                    )
+                    SmallText(
+                        text = item.datetime.format(DateTimeFormatter.ofPattern("d MMM, HH:mm"))
+                            .toString()
+                    )
+                }
+                Row(
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    SmallText(text = item.from.username + ": ")
+                    Text(text = item.message, maxLines = 1)
+                }
+            }
         }
-        Row(
-            horizontalArrangement = Arrangement.Start
-        ) {
-            SmallText(text = item.from.username + ": ")
-            SmallText(text = item.message)
-        }
-        Line(370.dp, MaterialTheme.colorScheme.onSecondary)
+//        Line(370.dp, MaterialTheme.colorScheme.onSecondary)
     }
 }
 
@@ -281,5 +302,42 @@ fun UserInfoItem(
                 .padding(5.dp),
             text = item.username.plus("#".plus(item.id.toString()))
         )
+    }
+}
+@Composable
+fun ColorWithText(userId: Int, text: String) {
+    Box(
+        modifier = Modifier
+            .height(50.dp)
+            .width(50.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Color(0xFF29a672 + userId * 128),
+                    shape = RoundedCornerShape(32.dp)
+                )
+        )
+        Text(
+            text = text,
+            color = Color.White,
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+fun getFriendId(item: MessageModel): Int {
+    return if (item.from.id == item.logged) {
+        item.to.id
+    } else {
+        item.from.id
+    }
+}
+fun getFriendName(item: MessageModel): String {
+    return if (item.from.id == item.logged) {
+        item.to.username
+    } else {
+        item.from.username
     }
 }

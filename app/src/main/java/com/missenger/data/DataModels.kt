@@ -14,6 +14,10 @@ data class RegUserModel (
     val firstname:  String = "",
     val lastname:   String = "",
 )
+data class LogUserModel (
+    val username:   String = "",
+    val password:   String = "",
+)
 
 data class MessageModel (
     val id:       Int = 0,

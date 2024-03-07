@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -18,11 +19,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.missenger.data.LogUserModel
+import com.missenger.data.RegUserModel
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun AuthScreen(
     state: StateFlow<AuthViewModel.AuthState>,
+    onClickLog: (LogUserModel) -> Unit,
+    onClickReg: (RegUserModel) -> Unit,
 ) {
     val value = state.collectAsState().value
     if (value.load) {
@@ -31,18 +36,19 @@ fun AuthScreen(
                 .fillMaxWidth()
                 .padding(24.dp)
         ) {
-            Text(
-                text = value.model?.id.toString()
-            )
-            Text(
-                text = value.model?.username ?: "ERROR"
-            )
-            Text(
-                text = value.model?.firstname ?: "none"
-            )
-            Text(
-                text = value.model?.lastname ?: "none"
-            )
+            Column(
+
+            ) {
+                AuthField("Username")
+                AuthField("Password")
+                IconButton(
+                    onClick = {
+                        onClickLog(LogUserModel("", ""))
+                    }
+                ) {
+
+                }
+            }
         }
     } else {
         CircularProgressIndicator(
