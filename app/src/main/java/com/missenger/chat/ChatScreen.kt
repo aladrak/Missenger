@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -42,23 +42,29 @@ fun ChatScreen(
 ) {
     val state by model.collectAsState()
     val inputText = remember { mutableStateOf(TextFieldValue()) }
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxSize(),
     ) {
-        if (!state.list.isNullOrEmpty()) {
-            MessageList(state.list!!)
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                SmallText(text = "Нет сообщений")
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+        ) {
+            if (!state.list.isNullOrEmpty()) {
+                MessageList(state.list!!)
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    SmallText(text = "Нет сообщений")
+                }
             }
         }
         Row(
             modifier = Modifier
+                .align(Alignment.BottomCenter)
                 .padding(7.dp, 0.dp, 7.dp, 5.dp)
         ) {
             SendField(inputText, onSend)
@@ -73,7 +79,6 @@ fun MessageList(
         modifier = Modifier
             .padding(5.dp, 5.dp, 5.dp, 0.dp)
             .fillMaxWidth()
-            .height(650.dp)
             .verticalScroll(rememberScrollState(0), reverseScrolling = true)
     ) {
         list.reversed().forEach {
@@ -88,26 +93,19 @@ fun MessageItem(
 ) {
     Column(
         modifier = Modifier
-//            .clickable {
-//
-//            }
+            .padding(5.dp)
     ) {
-        Column(
+        Row(
             modifier = Modifier
-                .padding(5.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                SmallText(text = item.from.username.plus("#".plus(item.from.id)))
-                SmallText(
-                    text = item.datetime.format(DateTimeFormatter.ofPattern("d MMM, HH:mm")).toString()
-                )
-            }
-            SmallText(text = item.message)
+            SmallText(text = item.from.username.plus("#".plus(item.from.id)))
+            SmallText(
+                text = item.datetime.format(DateTimeFormatter.ofPattern("d MMM, HH:mm")).toString()
+            )
         }
+        SmallText(text = item.message)
     }
 }
 
@@ -126,6 +124,7 @@ fun SendField(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
+        maxLines = 5,
 //            singleLine = true,
 //            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
 //            keyboardActions = KeyboardActions(

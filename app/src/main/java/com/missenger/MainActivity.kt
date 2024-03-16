@@ -10,10 +10,11 @@ import com.missenger.ui.theme.MissengerTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        SocialRepository().initPrefs(getPreferences(Context.MODE_PRIVATE))
+        val rep = SocialRepository()
+        rep.initPrefs(getPreferences(Context.MODE_PRIVATE))
         setContent {
             MissengerTheme {
-                Router()
+                Router(rep)
             }
         }
     }

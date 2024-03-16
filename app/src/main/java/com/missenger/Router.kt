@@ -35,6 +35,7 @@ import com.missenger.auth.AuthScreen
 import com.missenger.auth.AuthViewModel
 import com.missenger.chat.ChatScreen
 import com.missenger.chat.ChatViewModel
+import com.missenger.data.SocialRepository
 import com.missenger.messenger.MessengerScreen
 import com.missenger.messenger.MessengerViewModel
 import com.missenger.ui.theme.Line
@@ -49,6 +50,7 @@ enum class Router(@StringRes val title: Int) {
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun Router (
+    repository: SocialRepository,
     navController: NavHostController = rememberNavController()
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -93,21 +95,23 @@ fun Router (
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Router.Messenger.name,
+                startDestination =
+                    if (repository.LoggedUser.id == -1) {Router.Auth.name} else {Router.Messenger.name},
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
                 composable(route = Router.Auth.name) {
-                    val viewModel: AuthViewModel = viewModel()
+                    val viewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory(repository))
                     AuthScreen(
                         viewModel.State,
-                        {},
-                        {viewModel.registration(it)},
+                        { viewModel.login(it) },
+                        { viewModel.registration(it) },
+                        { navController.navigate(Router.Messenger.name) }
                     )
                 }
                 composable(route = Router.Messenger.name) {
-                    val viewModel: MessengerViewModel = viewModel()
+                    val viewModel: MessengerViewModel = viewModel(factory = MessengerViewModel.Factory(repository))
                     MessengerScreen(
                         viewModel.State,
                         { navController.navigate(Router.Chat.name.plus("/$it")) },
@@ -120,9 +124,8 @@ fun Router (
                 ) {
                     val friendId = it.arguments?.getInt("friendId") ?: -1
                     val viewModel: ChatViewModel =
-                        viewModel(factory = ChatViewModel.Factory(friendId))
+                        viewModel(factory = ChatViewModel.Factory(friendId, repository))
                     ChatScreen(viewModel.State, { viewModel.sendMessage(friendId, it) })
-
                 }
             }
         }

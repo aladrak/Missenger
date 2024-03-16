@@ -14,8 +14,9 @@ import kotlinx.coroutines.withContext
 
 class ChatViewModel(
     private val friendId: Int,
+    private val repository: SocialRepository
 ) : ViewModel() {
-    private val repository = SocialRepository()
+//    private val repository = SocialRepository()
 
     data class ChatState(
         val list: List<MessageModel>? = null,
@@ -61,9 +62,9 @@ class ChatViewModel(
     }
 
     companion object {
-        fun Factory(friendId: Int): ViewModelProvider.Factory = viewModelFactory {
+        fun Factory(friendId: Int, repository: SocialRepository): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                ChatViewModel(friendId)
+                ChatViewModel(friendId, repository)
             }
         }
     }

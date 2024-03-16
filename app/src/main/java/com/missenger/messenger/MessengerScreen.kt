@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -60,7 +61,11 @@ fun MessengerScreen(
     val value = state.collectAsState().value
     if (openDialog.value) {
         if (value.model == null) {
-            MediumText(text = "Some Error")
+//            MediumText(text = "Some Error")
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .fillMaxSize()
+            )
         } else {
             ConstraintLayout {
                 val (list, button) = createRefs()
@@ -138,7 +143,7 @@ fun ChatItem (
                 .fillMaxWidth()
                 .padding(8.dp, 5.dp, 8.dp, 5.dp)
         ) {
-            ColorWithText(friendId, friendName[0].toUpperCase().toString())
+            ColorWithText(friendId, friendName[0].uppercaseChar().toString())
             Column(
                 modifier = Modifier
                     .padding(8.dp, 0.dp, 4.dp, 0.dp)

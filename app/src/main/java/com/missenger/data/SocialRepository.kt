@@ -16,26 +16,44 @@ class SocialRepository {
     private val client = OkHttpClient()
     private lateinit var prefs: Prefs
 
-    data class UserData (
-        var id: Int,
-        var username: String,
-        var password: String,
-    )
-
-    var loggedUser : UserData = UserData(110, "ytu", "123456789")
+    public var LoggedUser : UserData
+        = UserData(-1, "", "")
+    // (110, "ytu", "123456789")
 
     fun initPrefs(pref: SharedPreferences) {
         prefs = Prefs(pref)
-        val id = if (prefs.getLoggedId() == 0)  {1} else {
-            prefs.getLoggedId()
+        val item = prefs.getLoggedUser()
+        if (item.username.isNotEmpty()) {
+            LoggedUser = item
         }
-//        loggedUser = UserData(id, "", "")
+    }
+    suspend fun logUser(
+        model: LogUserModel,
+    ) : Pair<Int, Int> {
+        val gson = GsonBuilder().create()
+        val message = gson.toJson(model)
+
+        val JSON = "application/json; charset=utf-8".toMediaType()
+        val request = Request.Builder()
+            .url(LOGIN)
+            .post(
+                message.toRequestBody(JSON)
+            )
+            .build()
+        return try {
+            val response = client.newCall(request).execute()
+            val item = JSONObject(response.body!!.string())
+            val result = item.getInt("id")
+            LoggedUser = UserData(result, model.username, model.password)
+            prefs.lastLogToPrefs(LoggedUser)
+            Pair(response.code, result)
+        } catch (ex: Exception) {
+            Log.e("OK_HTTP", ex.message ?: "")
+            Pair(0, 0)
+        }
     }
     suspend fun regUser (
-        username: String,
-        password: String,
-        lastname: String,
-        firstname: String,
+        model: RegUserModel,
     ) : Pair<Int, Int> {
         data class RegModel (
             val username: String = "",
@@ -45,7 +63,7 @@ class SocialRepository {
         )
 
         val gson = GsonBuilder().create()
-        val message = gson.toJson(RegModel(username, password, lastname, firstname))
+        val message = gson.toJson(RegModel(model.username, model.password, model.lastname, model.firstname))
 
         val JSON = "application/json; charset=utf-8".toMediaType()
         val request = Request.Builder()
@@ -58,6 +76,8 @@ class SocialRepository {
             val response = client.newCall(request).execute()
             val item = JSONObject(response.body!!.string())
             val result = item.getInt("id")
+            LoggedUser = UserData(result, model.username, model.password)
+            prefs!!.lastLogToPrefs(LoggedUser)
             Pair(response.code, result)
         } catch (ex: Exception) {
             Log.e("OK_HTTP", ex.message ?: "")
@@ -87,13 +107,13 @@ class SocialRepository {
     }
 
     suspend fun getLastMessages (
-        username: String = loggedUser.username,
-        password: String = loggedUser.password,
+        username: String = LoggedUser.username,
+        password: String = LoggedUser.password,
     ) : Pair<Int, List<MessageModel>?> {
 
         data class LastMessagesModel (
-            val username: String,
-            val password: String,
+            val username: String = LoggedUser.username,
+            val password: String = LoggedUser.password,
         )
         val gson = GsonBuilder().create()
         val message = gson.toJson(LastMessagesModel(username, password))
@@ -118,7 +138,7 @@ class SocialRepository {
                     resultList.add(
                         MessageModel(
                             item.getInt("id"),
-                            loggedUser.id,
+                            LoggedUser.id,
                             item.getString("message"),
                             UserInfo(
                                 from.getInt("id"),
@@ -145,8 +165,8 @@ class SocialRepository {
     }
 
     suspend fun getMessages (
-        username: String = loggedUser.username,
-        password: String = loggedUser.password,
+        username: String = LoggedUser.username,
+        password: String = LoggedUser.password,
         friendId: Int,
     ) : Pair<Int, List<MessageModel>?> {
         data class getMessagesModel(
@@ -178,7 +198,7 @@ class SocialRepository {
                     resultList.add(
                         MessageModel(
                             item.getInt("id"),
-                            loggedUser.id,
+                            LoggedUser.id,
                             item.getString("message"),
                             UserInfo(
                                 from.getInt("id"),
@@ -205,8 +225,8 @@ class SocialRepository {
     }
 
     suspend fun sendMsg (
-        username: String = loggedUser.username,
-        password: String = loggedUser.password,
+        username: String = LoggedUser.username,
+        password: String = LoggedUser.password,
         friendId: Int,
         message: String,
     ) : Int {

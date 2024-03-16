@@ -8,6 +8,11 @@ data class UserInfo (
     val firstname:  String = "",
     val lastname:   String = "",
 )
+data class UserData (
+    var id: Int,
+    var username: String,
+    var password: String,
+) {}
 data class RegUserModel (
     val username:   String = "",
     val password:   String = "",

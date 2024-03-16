@@ -1,14 +1,16 @@
 package com.missenger.data
 
 import android.content.SharedPreferences
+import com.google.gson.GsonBuilder
 
 class Prefs (pref: SharedPreferences) {
     private val prefs = pref
-
-    fun putIdToPrefs(id: Int) {
+    private val gson = GsonBuilder().create()
+    fun lastLogToPrefs(item: UserData) {
+        val serializable = gson.toJson(item)
         prefs
             .edit()
-            .putInt(ID_PREFS_KEY, id)
+            .putString(LOG_PREFS_KEY, serializable)
             .apply()
     }
 
@@ -22,7 +24,10 @@ class Prefs (pref: SharedPreferences) {
 //            .apply()
 //    }
 
-    fun getLoggedId(): Int = prefs.getInt(ID_PREFS_KEY, 0)
+    fun getLoggedUser(): UserData {
+        val item = prefs.getString(LOG_PREFS_KEY, "{\"id\":-1,\"password\":\"\",\"username\":\"\"}")
+        return gson.fromJson(item, UserData::class.java)
+    }
 
 //    fun getSecondList(): List<ListItemViewModel> = prefs.getStringSet(SECOND_LIST_KEY, setOf())!!
 //        .map {
@@ -31,6 +36,6 @@ class Prefs (pref: SharedPreferences) {
 
     companion object {
         private const val PREFS = "PREFS"
-        private const val ID_PREFS_KEY = "ID_PREFS_KEY"
+        private const val LOG_PREFS_KEY = "LOG_PREFS_KEY"
     }
 }

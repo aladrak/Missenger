@@ -1,7 +1,10 @@
 package com.missenger.messenger
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.missenger.data.MessageModel
 import com.missenger.data.SocialRepository
 import com.missenger.data.UserInfo
@@ -10,8 +13,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MessengerViewModel : ViewModel() {
-    private val repository = SocialRepository()
+class MessengerViewModel(
+    private val repository: SocialRepository
+) : ViewModel() {
+//    private val repository = SocialRepository()
 
     data class MessengerState(
         val model: List<MessageModel>? = null,
@@ -51,6 +56,13 @@ class MessengerViewModel : ViewModel() {
                         )
                     )
                 }
+            }
+        }
+    }
+    companion object {
+        fun Factory(repository: SocialRepository): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                MessengerViewModel(repository)
             }
         }
     }
