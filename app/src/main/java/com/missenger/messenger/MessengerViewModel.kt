@@ -27,9 +27,11 @@ class MessengerViewModel(
 
 //    val State: StateFlow<MessengerState>
 //        get() = state.asStateFlow()
+    fun logOut() {
+        repository.logOutUser()
+    }
     fun searchUser(str: String) {
         viewModelScope.launch(Dispatchers.IO) {
-
             val resultMsg = repository.getLastMessages()
             val result = repository.searchUser(str)
             result.second?.let {

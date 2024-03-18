@@ -8,7 +8,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.missenger.data.LogUserModel
 import com.missenger.data.RegUserModel
 import com.missenger.data.SocialRepository
-import com.missenger.data.UserInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -18,12 +17,7 @@ class AuthViewModel(
     private val repository: SocialRepository
 ) : ViewModel() {
 //    private val repository = SocialRepository()
-
-    data class AuthState(
-        val model: UserInfo? = UserInfo(),
-        val code: Int = -1,
-        val logged: Int = -1
-    )
+    data class AuthState( val code: Int = -1 )
     val State = MutableStateFlow(AuthState())
     fun login(item: LogUserModel) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -44,17 +38,6 @@ class AuthViewModel(
                 State.emit(
                     AuthState(
                         code = result.first,
-                    )
-                )
-            }
-        }
-    }
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                State.emit(
-                    AuthState(
-                        logged = repository.LoggedUser.id
                     )
                 )
             }

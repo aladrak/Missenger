@@ -43,13 +43,9 @@ fun AuthScreen(
     navigate: () -> Unit,
 ) {
     val value = state.collectAsState().value
-
-    if (value.logged != -1 || value.code == 200) {
-        navigate()
-    }
+    if (value.code == 200) { navigate() }
 
     var tabIndex by remember { mutableIntStateOf(0) }
-
     val tabs = listOf("Login", "Registration")
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -69,10 +65,13 @@ fun AuthScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            OutlinedCard() {
+            OutlinedCard(
+                modifier = Modifier
+                    .padding(12.dp)
+            ) {
                 when (tabIndex) {
-                    0 -> LoginScreen(state, onClickLog, navigate)
-                    1 -> RegistrationScreen(value, onClickReg, navigate)
+                    0 -> LoginScreen(onClickLog)
+                    1 -> RegistrationScreen(onClickReg)
                 }
             }
         }
@@ -80,12 +79,9 @@ fun AuthScreen(
 }
 @Composable
 fun LoginScreen(
-    state: StateFlow<AuthViewModel.AuthState>,
     onClickAction: (LogUserModel) -> Unit,
-    navigate: () -> Unit,
 ) {
     val context = LocalContext.current
-    val value = state.collectAsState().value
     val username = remember { mutableStateOf(TextFieldValue()) }
     val password = remember { mutableStateOf(TextFieldValue()) }
     AuthField("Username", username)
@@ -94,15 +90,6 @@ fun LoginScreen(
         onClick = {
             if (username.value.text.isNotEmpty() && password.value.text.isNotEmpty()) {
                 onClickAction(LogUserModel(username.value.text, password.value.text))
-                if (value.code == 200) {
-                    navigate()
-                } else {
-                    Toast.makeText(
-                        context,
-                        "Error! " + value.code.toString(),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
             } else {
                 Toast.makeText(
                     context,
@@ -121,9 +108,7 @@ fun LoginScreen(
 }
 @Composable
 fun RegistrationScreen(
-    value: AuthViewModel.AuthState,
     onClickAction: (RegUserModel) -> Unit,
-    navigate: () -> Unit,
 ) {
 
 }

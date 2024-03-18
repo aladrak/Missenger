@@ -16,7 +16,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -30,44 +34,83 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.missenger.R
 import com.missenger.data.MessageModel
+import com.missenger.messenger.getFriendName
 import com.missenger.ui.theme.AppColor
+import com.missenger.ui.theme.Line
 import com.missenger.ui.theme.SmallText
 import kotlinx.coroutines.flow.StateFlow
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     model: StateFlow<ChatViewModel.ChatState>,
-    onSend: (String) -> Unit = {}
+    onSend: (String) -> Unit = {},
 ) {
     val state by model.collectAsState()
     val inputText = remember { mutableStateOf(TextFieldValue()) }
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-        ) {
-            if (!state.list.isNullOrEmpty()) {
-                MessageList(state.list!!)
-            } else {
-                Box(
+    Scaffold(
+        topBar = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                TopAppBar(
                     modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    SmallText(text = "Нет сообщений")
-                }
+                        .wrapContentHeight(),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                    title = {
+                        Text(
+                            text = state.list?.get(0)?.let { getFriendName(it) } ?: "Loading...",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            modifier = Modifier.size(50.dp),
+                            onClick = { },
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_menu_24),
+                                "nav btn",
+                            )
+                        }
+                    }
+                )
+                Line(400.dp, MaterialTheme.colorScheme.onSecondary)
             }
         }
-        Row(
+    ) {innerPadding ->
+        Box(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(7.dp, 0.dp, 7.dp, 5.dp)
+                .padding(innerPadding)
+                .fillMaxSize(),
         ) {
-            SendField(inputText, onSend)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+            ) {
+                if (!state.list.isNullOrEmpty()) {
+                    MessageList(state.list!!)
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        SmallText(text = "Нет сообщений")
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(7.dp, 0.dp, 7.dp, 5.dp)
+            ) {
+                SendField(inputText, onSend)
+            }
         }
     }
 }
@@ -140,13 +183,14 @@ fun SendField(
                     onSend(inputText.value.text)
                     inputText.value = TextFieldValue("")
                 },
-            ) {
-                Icon(
-                    tint = AppColor,
-                    painter = painterResource(R.drawable.baseline_send_24),
-                    contentDescription = "Send btn",
-                )
-            }
+                content = {
+                    Icon(
+                        tint = AppColor,
+                        painter = painterResource(R.drawable.baseline_send_24),
+                        contentDescription = "Send btn",
+                    )
+                }
+            )
         },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = MaterialTheme.colorScheme.secondary,

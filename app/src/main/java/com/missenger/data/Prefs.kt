@@ -13,6 +13,12 @@ class Prefs (pref: SharedPreferences) {
             .putString(LOG_PREFS_KEY, serializable)
             .apply()
     }
+    fun clearPrefs() {
+        prefs
+            .edit()
+            .remove(LOG_PREFS_KEY)
+            .apply()
+    }
 
 //    fun secondListToPrefs(list: List<ListItemViewModel>) {
 //        val serializableSet = list.map {

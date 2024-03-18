@@ -27,6 +27,10 @@ class SocialRepository {
             LoggedUser = item
         }
     }
+    fun logOutUser() {
+        LoggedUser = UserData(-1, "", "")
+        prefs.clearPrefs()
+    }
     suspend fun logUser(
         model: LogUserModel,
     ) : Pair<Int, Int> {
@@ -77,7 +81,7 @@ class SocialRepository {
             val item = JSONObject(response.body!!.string())
             val result = item.getInt("id")
             LoggedUser = UserData(result, model.username, model.password)
-            prefs!!.lastLogToPrefs(LoggedUser)
+            prefs.lastLogToPrefs(LoggedUser)
             Pair(response.code, result)
         } catch (ex: Exception) {
             Log.e("OK_HTTP", ex.message ?: "")
@@ -95,10 +99,10 @@ class SocialRepository {
             val response = client.newCall(request).execute()
             val json = JSONObject(response.body!!.string())
             Pair (response.code, UserInfo(
-                id = json.getInt("id"),
-                username = json.getString("username"),
+                id =        json.getInt("id"),
+                username =  json.getString("username"),
                 firstname = json.getString("first_name"),
-                lastname = json.getString("last_name"),
+                lastname =  json.getString("last_name"),
             ))
         } catch (ex: Exception) {
             Log.e("OK_HTTP", ex.message ?: "")
@@ -112,8 +116,8 @@ class SocialRepository {
     ) : Pair<Int, List<MessageModel>?> {
 
         data class LastMessagesModel (
-            val username: String = LoggedUser.username,
-            val password: String = LoggedUser.password,
+            val username: String,
+            val password: String,
         )
         val gson = GsonBuilder().create()
         val message = gson.toJson(LastMessagesModel(username, password))
@@ -169,13 +173,13 @@ class SocialRepository {
         password: String = LoggedUser.password,
         friendId: Int,
     ) : Pair<Int, List<MessageModel>?> {
-        data class getMessagesModel(
+        data class GetMessagesModel(
             val username: String,
             val password: String,
             val friend_id: Int,
         )
         val gson = GsonBuilder().create()
-        val message = gson.toJson(getMessagesModel(username, password, friendId))
+        val message = gson.toJson(GetMessagesModel(username, password, friendId))
 
         val JSON = "application/json; charset=utf-8".toMediaType()
         val request = Request.Builder()
@@ -238,7 +242,7 @@ class SocialRepository {
         )
 
         val gson = GsonBuilder().create()
-        val sender = gson.toJson(SendModel(username, password, to = friendId, message))
+        val sender = gson.toJson(SendModel(username, password, friendId, message))
 
         val JSON = "application/json; charset=utf-8".toMediaType()
         val request = Request.Builder()

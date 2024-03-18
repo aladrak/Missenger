@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,8 +25,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -46,74 +48,122 @@ import com.missenger.R
 import com.missenger.data.MessageModel
 import com.missenger.data.UserInfo
 import com.missenger.ui.theme.AppColor
+import com.missenger.ui.theme.Line
 import com.missenger.ui.theme.MediumText
 import com.missenger.ui.theme.SmallText
 import kotlinx.coroutines.flow.StateFlow
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessengerScreen(
     state: StateFlow<MessengerViewModel.MessengerState>,
     onClickAction: (Int) -> Unit,
     onSearch: (String) -> Unit,
+    logOut: () -> Unit,
 ) {
     val openDialog = remember {mutableStateOf(true)}
     val value = state.collectAsState().value
-    if (openDialog.value) {
-        if (value.model == null) {
-//            MediumText(text = "Some Error")
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .fillMaxSize()
-            )
-        } else {
-            ConstraintLayout {
-                val (list, button) = createRefs()
-                Column(
-                    modifier = Modifier
-                        .constrainAs(list) {top.linkTo(parent.top)}
-                        .fillMaxWidth()
-                        .padding(5.dp, 0.dp, 5.dp, 0.dp)
-                ) {
-                    if (value.model.isNotEmpty()) {
-                        value.model.forEach {
-                            ChatItem(
-                                it,
-                                onClickAction
-                            )
-                        }
-                    } else {
-                        MediumText(text = "No chats!")
+    when (openDialog.value) {
+        true -> {
+            Scaffold(
+                topBar = {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        TopAppBar(
+                            modifier = Modifier.wrapContentHeight(),
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.secondary,
+                            ),
+                            title = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        stringResource(R.string.app_name),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    IconButton(
+                                        modifier = Modifier.size(50.dp),
+                                        onClick = { logOut() },
+                                        content = {
+                                            Icon(
+                                                painter = painterResource(R.drawable.baseline_exit_to_app_24),
+                                                "exit btn",
+                                            )
+                                        }
+                                    )
+                                }
+                            },
+                            navigationIcon = {
+                                IconButton(
+                                    modifier = Modifier.size(50.dp),
+                                    onClick = { },
+                                    content = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.baseline_menu_24),
+                                            "nav btn",
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                        Line(400.dp, MaterialTheme.colorScheme.onSecondary)
                     }
                 }
-                FloatingActionButton(
-                    modifier = Modifier
-                        .size(55.dp)
-                        .constrainAs(button) {
-                            bottom.linkTo(parent.bottom, margin = 16.dp)
-                            end.linkTo(parent.end, margin = 16.dp)
-                        },
-                    containerColor = AppColor,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    onClick = {
-                        openDialog.value = false
-                    },
-                    content = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_add_24),
-                            "add btn"
-                        )
+            ) { innerPadding ->
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(innerPadding)
+                ) {
+                    if (value.model == null) {
+                        //            MediumText(text = "Some Error")
+                        CircularProgressIndicator( modifier = Modifier.fillMaxSize().padding(25.dp) )
+                    } else {
+                        ConstraintLayout(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            val (list, button) = createRefs()
+                            Column(
+                                modifier = Modifier
+                                    .constrainAs(list) { top.linkTo(parent.top) }
+                                    .padding(5.dp, 0.dp, 5.dp, 0.dp)
+                            ) {
+                                if (value.model.isNotEmpty()) {
+                                    value.model.forEach {
+                                        ChatItem(it, onClickAction)
+                                    }
+                                } else {
+                                    MediumText(text = "No chats!")
+                                }
+                            }
+                            FloatingActionButton(
+                                modifier = Modifier
+                                    .padding(innerPadding)
+                                    .size(55.dp)
+                                    .constrainAs(button) {
+                                        bottom.linkTo(parent.bottom, margin = 16.dp)
+                                        end.linkTo(parent.end, margin = 16.dp)
+                                    },
+                                containerColor = AppColor,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                onClick = { openDialog.value = false },
+                                content = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_add_24),
+                                        "add btn"
+                                    )
+                                }
+                            )
+                        }
                     }
-                )
+                }
             }
         }
-    } else {
-        CardHolder(
-            state,
-            { openDialog.value = true },
-            onClickAction,
-            onSearch,
-        )
+        false -> CardHolder( state, { openDialog.value = true }, onClickAction, onSearch )
     }
 }
 
@@ -170,7 +220,6 @@ fun ChatItem (
                 }
             }
         }
-//        Line(370.dp, MaterialTheme.colorScheme.onSecondary)
     }
 }
 
@@ -184,9 +233,8 @@ fun CardHolder(
     val value = state.collectAsState().value
     OutlinedCard(
         modifier = Modifier
-            .padding(15.dp)
-            .fillMaxWidth()
-            .fillMaxHeight()
+            .padding(12.dp)
+            .fillMaxSize()
     ) {
         Row(
             modifier = Modifier
@@ -312,9 +360,7 @@ fun UserInfoItem(
 @Composable
 fun ColorWithText(userId: Int, text: String) {
     Box(
-        modifier = Modifier
-            .height(50.dp)
-            .width(50.dp),
+        modifier = Modifier.size(50.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
